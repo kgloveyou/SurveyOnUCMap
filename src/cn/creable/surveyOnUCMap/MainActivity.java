@@ -1358,9 +1358,9 @@ public class MainActivity extends Activity implements UCFeatureLayerListener,Loc
 					v.add(layers.get(i1).layer);
 				}
 			}
-			if (pointLayer!=null) v.add(pointLayer.layer);
-			if (lineLayer!=null) v.add(lineLayer.layer);
-			if (polygonLayer!=null) v.add(polygonLayer.layer);
+			if (pointLayer.layer!=null) v.add(pointLayer.layer);
+			if (lineLayer.layer!=null) v.add(lineLayer.layer);
+			if (polygonLayer.layer!=null) v.add(polygonLayer.layer);
 			DeleteFeatureTool tool=new DeleteFeatureTool(mView,v);
 			curTool=tool;
 		} else if ("±‡º≠ Ù–‘".equals(menu)) {
@@ -1378,9 +1378,9 @@ public class MainActivity extends Activity implements UCFeatureLayerListener,Loc
 					v.add(layers.get(i1).layer);
 				}
 			}
-			if (pointLayer!=null) v.add(pointLayer.layer);
-			if (lineLayer!=null) v.add(lineLayer.layer);
-			if (polygonLayer!=null) v.add(polygonLayer.layer);
+			if (pointLayer.layer!=null) v.add(pointLayer.layer);
+			if (lineLayer.layer!=null) v.add(lineLayer.layer);
+			if (polygonLayer.layer!=null) v.add(polygonLayer.layer);
 			EditFeatureAttTool tool=new EditFeatureAttTool(mView,new Handler() {
 				public void handleMessage(Message msg) 
 				{
@@ -1458,9 +1458,9 @@ public class MainActivity extends Activity implements UCFeatureLayerListener,Loc
 					v.add(layers.get(i1).layer);
 				}
 			}
-			if (pointLayer!=null) v.add(pointLayer.layer);
-			if (lineLayer!=null) v.add(lineLayer.layer);
-			if (polygonLayer!=null) v.add(polygonLayer.layer);
+			if (pointLayer.layer!=null) v.add(pointLayer.layer);
+			if (lineLayer.layer!=null) v.add(lineLayer.layer);
+			if (polygonLayer.layer!=null) v.add(polygonLayer.layer);
 			EditFeatureTool tool=new EditFeatureTool(mView,v);
 			curTool=tool;
 		} else if ("≥∑œ˙".equals(menu)) {
