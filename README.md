@@ -1,6 +1,6 @@
 # SurveyOnUCMap
-“外调助手”是一款基于安卓GIS组件UCMap OpenGL版（源码官网下载地址 http://www.creable.cn/kuibu/xiazai.asp ） 适用于林业、国土、管线以及各类POI点等行业的外业数据采集，
-在Google地图上既可以叠加自己的影像图，也可以叠加ShapeFile矢量要素图层，支持对叠加的ShapeFile矢量要素进行编辑，实现对要素图形和属性的采集，
+“外调助手”是一款基于安卓GIS组件UCMap OpenGL版（源码官网下载地址 http://www.creable.cn/kuibu/xiazai.asp ） 适用于林业、国土、管线以及各类POI点等行业的外业数据采集，支持天地图和Google地图；
+在天地图或Google地图上既可以叠加自己的影像图，也可以叠加ShapeFile矢量要素图层，支持对叠加的ShapeFile矢量要素进行编辑，实现对要素图形和属性的采集，
 同时，还支持拍照、录音、录像等多媒体功能。
 “外调助手”具有以下几个特点：
 一、简单易操作；二、通用，各行业都能适用；三、易扩展、可根据不同行业的特殊需求进行扩展定制；四、地图显示速度快，用户体验好。
