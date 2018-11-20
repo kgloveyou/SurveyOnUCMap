@@ -17,6 +17,7 @@ import com.vividsolutions.jts.geom.Polygon;
 
 import android.view.GestureDetector.OnGestureListener;
 import android.view.MotionEvent;
+import cn.creable.ucmap.openGIS.Arithmetic;
 import cn.creable.ucmap.openGIS.GeometryType;
 import cn.creable.ucmap.openGIS.UCFeatureLayer;
 import cn.creable.ucmap.openGIS.UCFeatureLayerListener;
@@ -33,6 +34,9 @@ public class EditFeatureTool implements OnGestureListener,UCFeatureLayerListener
 	private int current;
 	
 	private int controlPointSize=30;
+	private boolean dragFlag;
+	
+	private boolean addPoint;
 	
 	private GeometryFactory gf=new GeometryFactory();
 	
@@ -44,13 +48,9 @@ public class EditFeatureTool implements OnGestureListener,UCFeatureLayerListener
 			layer.setListener(this);
 		mMapView.setListener(this, null);
 	}
-
-	@Override
-	public boolean onItemSingleTapUp(UCFeatureLayer layer, Feature feature, double distance) {
-		if (distance>30) return false;
-		mMapView.getMaskLayer().clear();
-		this.feature=feature;
-		this.curLayer=layer;
+	
+	private void hitFeature(UCFeatureLayer layer,Feature feature)
+	{
 		Hashtable<String,Object> value=new Hashtable<String,Object>();
     	for (Field f:feature.schema())
     		if (feature.get(f.name())!=null)
@@ -102,12 +102,21 @@ public class EditFeatureTool implements OnGestureListener,UCFeatureLayerListener
 				}
 			}
 			break;
-		default:
-			return false;
+//		default:
+//			return false;
 		}
 		mMapView.getMaskLayer().setData(controlPoints, controlPointSize, 2, "#88FF0000", "#88FF0000");
 		mMapView.refresh();
 		mMapView.move(false);
+	}
+
+	@Override
+	public boolean onItemSingleTapUp(UCFeatureLayer layer, Feature feature, double distance) {
+		if (distance>30) return false;
+		mMapView.getMaskLayer().clear();
+		this.feature=feature;
+		this.curLayer=layer;
+		hitFeature(layer,feature);
 		System.out.println("itemTapUp");
 		return true;
 	}
@@ -135,6 +144,51 @@ public class EditFeatureTool implements OnGestureListener,UCFeatureLayerListener
 				return true;
 			}
 		}
+		dragFlag=false;
+		
+		if (current==-1 && controlPoints.size()>0 && feature!=null)
+		{
+			
+			switch (feature.geometry().getGeometryType())
+			{
+			case GeometryType.LineString:
+				LineString line=(LineString)feature.geometry();
+				if (this.isPointOnLineString(e.getX(),e.getY(), line))
+				{
+					addPoint=true;
+					line=this.addPointOnLineString(e.getX(),e.getY(), line);
+					Hashtable<String,Object> values1=new Hashtable<String,Object>();
+					for (Field f:feature.schema())
+					{
+						Object obj=feature.get(f.name());
+						if (obj!=null) values1.put(f.name(), obj);
+					}
+					values1.put("geometry",line);
+					feature=curLayer.updateFeature(feature, values1);
+					UndoRedo.getInstance().addUndo(EditOperation.UpdateFeature, curLayer, oldFeature, feature);
+				}
+				break;
+			case GeometryType.Polygon:
+				Polygon pg=(Polygon)feature.geometry();
+				if (this.isPointOnLineString(e.getX(),e.getY(), pg.getExteriorRing()))
+				{
+					addPoint=true;
+					line=this.addPointOnLineString(e.getX(),e.getY(), pg.getExteriorRing());
+					Hashtable<String,Object> values1=new Hashtable<String,Object>();
+					for (Field f:feature.schema())
+					{
+						Object obj=feature.get(f.name());
+						if (obj!=null) values1.put(f.name(), obj);
+					}
+					values1.put("geometry",gf.createPolygon(line.getCoordinates()));
+					feature=curLayer.updateFeature(feature, values1);
+					UndoRedo.getInstance().addUndo(EditOperation.UpdateFeature, curLayer, oldFeature, feature);
+				}
+				break;
+			}
+			hitFeature(curLayer,feature);
+		}
+		
 		return false;
 	}
 
@@ -147,6 +201,106 @@ public class EditFeatureTool implements OnGestureListener,UCFeatureLayerListener
 	@Override
 	public void onLongPress(MotionEvent e) {
 		System.out.println("onLongPress");
+		if (dragFlag==false && current!=-1 && feature!=null && feature.geometry().getGeometryType()!=GeometryType.Point)
+		{
+			if (feature.geometry().getGeometryType()==GeometryType.LineString && controlPoints.size()<=2)
+				return;
+			if (feature.geometry().getGeometryType()==GeometryType.Polygon && controlPoints.size()<=3)
+				return;
+			controlPoints.remove(current);
+			updateFeature(null);
+			UndoRedo.getInstance().addUndo(EditOperation.UpdateFeature, curLayer, oldFeature, feature);
+			mMapView.getMaskLayer().setData(controlPoints, controlPointSize, 2, "#88FF0000", "#88FF0000");
+			mMapView.refresh();
+		}
+	}
+	
+	private void updateFeature(Point pt)
+	{
+		if (pt!=null)
+			controlPoints.get(current).put("geometry", gf.createPoint(new Coordinate(pt.getX(),pt.getY())));
+		switch (feature.geometry().getGeometryType())
+		{
+		case GeometryType.Point:
+			Hashtable<String,Object> values=new Hashtable<String,Object>();
+			for (Field f:feature.schema())
+			{
+				Object obj=feature.get(f.name());
+				if (obj!=null) values.put(f.name(), obj);
+			}
+			if (pt!=null)
+				values.put("geometry",gf.createPoint(new Coordinate(pt.getX(),pt.getY())));
+			feature=curLayer.updateFeature(feature, values);
+			break;
+		case GeometryType.LineString:
+			Hashtable<String,Object> values1=new Hashtable<String,Object>();
+			for (Field f:feature.schema())
+			{
+				Object obj=feature.get(f.name());
+				if (obj!=null) values1.put(f.name(), obj);
+			}
+			Coordinate[] coords=new Coordinate[controlPoints.size()];
+			for (int i=0;i<controlPoints.size();++i)
+			{
+				Point pt1=(Point)controlPoints.get(i).geometry();
+				coords[i]=new Coordinate(pt1.getX(),pt1.getY());
+			}
+			values1.put("geometry",gf.createLineString(coords));
+			feature=curLayer.updateFeature(feature, values1);
+			break;
+		case GeometryType.Polygon:
+			Hashtable<String,Object> values11=new Hashtable<String,Object>();
+			for (Field f:feature.schema())
+			{
+				Object obj=feature.get(f.name());
+				if (obj!=null) values11.put(f.name(), obj);
+			}
+			if (innerRings==null)
+			{
+				Coordinate[] coords1=new Coordinate[controlPoints.size()+1];
+				for (int i=0;i<controlPoints.size();++i)
+				{
+					Point pt1=(Point)controlPoints.get(i).geometry();
+					coords1[i]=new Coordinate(pt1.getX(),pt1.getY());
+				}
+				coords1[controlPoints.size()]=coords1[0];//闭合
+				values11.put("geometry",gf.createPolygon(gf.createLinearRing(coords1)));
+			}
+			else
+			{
+				int total=0;
+				for (int i=0;i<innerRings.length;++i)
+					total+=innerRings[i];
+				int size=controlPoints.size()-total;
+				Coordinate[] coords1=new Coordinate[size+1];
+				int i;
+				for (i=0;i<size;++i)
+				{
+					Point pt1=(Point)controlPoints.get(i).geometry();
+					coords1[i]=new Coordinate(pt1.getX(),pt1.getY());
+				}
+				coords1[size]=coords1[0];//闭合
+				LinearRing extRing=gf.createLinearRing(coords1);
+				LinearRing inRing[]=new LinearRing[innerRings.length];
+				for (int j=0;j<innerRings.length;++j)
+				{
+					coords1=new Coordinate[innerRings[j]+1];
+					int pos=i+innerRings[j];
+					int pointer=0;
+					for (;i<pos;++i)
+					{
+						Point pt1=(Point)controlPoints.get(i).geometry();
+						coords1[pointer++]=new Coordinate(pt1.getX(),pt1.getY());
+					}
+					coords1[pointer]=coords1[0];//闭合
+					inRing[j]=gf.createLinearRing(coords1);
+				}
+				values11.put("geometry", gf.createPolygon(extRing, inRing));
+			}
+			
+			feature=curLayer.updateFeature(feature, values11);
+			break;
+		}
 	}
 
 	@Override
@@ -154,89 +308,9 @@ public class EditFeatureTool implements OnGestureListener,UCFeatureLayerListener
 		//System.out.println(String.format("onScroll e1=(%f,%f) e2=(%f,%f) x=%f y=%f", e1.getX(),e1.getY(),e2.getX(),e2.getY(),x,y));
 		if (current>=0)
 		{
+			dragFlag=true;
 			Point pt=mMapView.toMapPoint(e2.getX(), e2.getY());
-			controlPoints.get(current).put("geometry", gf.createPoint(new Coordinate(pt.getX(),pt.getY())));
-			switch (feature.geometry().getGeometryType())
-			{
-			case GeometryType.Point:
-				Hashtable<String,Object> values=new Hashtable<String,Object>();
-				for (Field f:feature.schema())
-				{
-					Object obj=feature.get(f.name());
-					if (obj!=null) values.put(f.name(), obj);
-				}
-				values.put("geometry",gf.createPoint(new Coordinate(pt.getX(),pt.getY())));
-				feature=curLayer.updateFeature(feature, values);
-				break;
-			case GeometryType.LineString:
-				Hashtable<String,Object> values1=new Hashtable<String,Object>();
-				for (Field f:feature.schema())
-				{
-					Object obj=feature.get(f.name());
-					if (obj!=null) values1.put(f.name(), obj);
-				}
-				Coordinate[] coords=new Coordinate[controlPoints.size()];
-				for (int i=0;i<controlPoints.size();++i)
-				{
-					Point pt1=(Point)controlPoints.get(i).geometry();
-					coords[i]=new Coordinate(pt1.getX(),pt1.getY());
-				}
-				values1.put("geometry",gf.createLineString(coords));
-				feature=curLayer.updateFeature(feature, values1);
-				break;
-			case GeometryType.Polygon:
-				Hashtable<String,Object> values11=new Hashtable<String,Object>();
-				for (Field f:feature.schema())
-				{
-					Object obj=feature.get(f.name());
-					if (obj!=null) values11.put(f.name(), obj);
-				}
-				if (innerRings==null)
-				{
-					Coordinate[] coords1=new Coordinate[controlPoints.size()+1];
-					for (int i=0;i<controlPoints.size();++i)
-					{
-						Point pt1=(Point)controlPoints.get(i).geometry();
-						coords1[i]=new Coordinate(pt1.getX(),pt1.getY());
-					}
-					coords1[controlPoints.size()]=coords1[0];//闭合
-					values11.put("geometry",gf.createPolygon(gf.createLinearRing(coords1)));
-				}
-				else
-				{
-					int total=0;
-					for (int i=0;i<innerRings.length;++i)
-						total+=innerRings[i];
-					int size=controlPoints.size()-total;
-					Coordinate[] coords1=new Coordinate[size+1];
-					int i;
-					for (i=0;i<size;++i)
-					{
-						Point pt1=(Point)controlPoints.get(i).geometry();
-						coords1[i]=new Coordinate(pt1.getX(),pt1.getY());
-					}
-					coords1[size]=coords1[0];//闭合
-					LinearRing extRing=gf.createLinearRing(coords1);
-					LinearRing inRing[]=new LinearRing[innerRings.length];
-					for (int j=0;j<innerRings.length;++j)
-					{
-						coords1=new Coordinate[innerRings[j]+1];
-						int pos=i+innerRings[j];
-						int pointer=0;
-						for (;i<pos;++i)
-						{
-							Point pt1=(Point)controlPoints.get(i).geometry();
-							coords1[pointer++]=new Coordinate(pt1.getX(),pt1.getY());
-						}
-						coords1[pointer]=coords1[0];//闭合
-						inRing[j]=gf.createLinearRing(coords1);
-					}
-					values11.put("geometry", gf.createPolygon(extRing, inRing));
-				}
-				
-				feature=curLayer.updateFeature(feature, values11);
-				break;
-			}
+			updateFeature(pt);
 			mMapView.refresh();
 		}
 		return false;
@@ -251,6 +325,10 @@ public class EditFeatureTool implements OnGestureListener,UCFeatureLayerListener
 	public boolean onSingleTapUp(MotionEvent e) {
 		
 		System.out.println("onSingleTapUp");
+		if (addPoint) {
+			addPoint=false;
+			return false;
+		}
 		mMapView.move(true);
 		mMapView.getMaskLayer().clear();
 		controlPoints.clear();
@@ -271,6 +349,50 @@ public class EditFeatureTool implements OnGestureListener,UCFeatureLayerListener
 		mMapView.getMaskLayer().clear();
 		controlPoints.clear();
 		current=-1;
+	}
+	
+	private boolean isPointOnLineString(float x,float y,LineString line)
+	{
+		int count=line.getNumPoints();
+		Coordinate[] points=line.getCoordinates();
+        Coordinate[] pts=new Coordinate[count];
+        Point pt;
+        for (int i=0;i<count;++i)
+        {
+        	pt=mMapView.fromMapPoint(points[i].x,points[i].y);
+            pts[i]=new Coordinate(pt.getX(),pt.getY());
+        }
+        LineString newline=gf.createLineString(pts);
+        pt=gf.createPoint(new Coordinate(x,y));
+        double dis=Arithmetic.GetNearest(pt, newline);
+        boolean ret=dis<30;
+        newline=null;
+        pt=null;
+        return ret;
+	}
+	
+	private LineString addPointOnLineString(float x,float y,LineString line)
+	{
+		Point result=mMapView.toMapPoint(x, y);
+        Point pt=(Point)Arithmetic.GetNearestPoint(result.getX(), result.getY(), line);
+        int pos=Arithmetic.getLastPos();
+        //line.addPoint(pos+1, pt.getX(), pt.getY());
+        //pt=null;
+        result=null;
+        int size=line.getNumPoints();
+        Coordinate[] coords=new Coordinate[size+1];
+        Coordinate[] points=line.getCoordinates();
+        int i=0;
+        for (;i<=pos;++i)
+        {
+        	coords[i]=points[i];
+        }
+        coords[i++]=new Coordinate(pt.getX(),pt.getY());
+        for (;i<=size;++i)
+        {
+        	coords[i]=points[i-1];
+        }
+        return gf.createLineString(coords);
 	}
 
 }

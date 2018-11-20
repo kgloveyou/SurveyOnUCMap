@@ -133,7 +133,7 @@ public class MainActivity extends Activity implements UCFeatureLayerListener,Loc
 	
 	private double currentLon,currentLat;
 	
-	TextView tv_maptype1,tv_maptype2,tv_maptype3;
+	TextView tv_maptype1,tv_maptype2,tv_maptype3,tv_maptype4,tv_maptype5;
 	
 	UCVectorLayer vlayer;
 	GeometryFactory gf=new GeometryFactory();
@@ -149,6 +149,7 @@ public class MainActivity extends Activity implements UCFeatureLayerListener,Loc
 	}
 	
 	UCRasterLayer gLayer;
+	UCRasterLayer tLayer1,tLayer2;
 	Vector<Layer> layers=new Vector<Layer>();
 	Layer pointLayer=new Layer();
 	Layer lineLayer=new Layer();
@@ -359,17 +360,42 @@ public class MainActivity extends Activity implements UCFeatureLayerListener,Loc
             public void onClick(View v) {
             	if (type!=0)
     			{
-    				mView.deleteLayer(gLayer);
+            		Point pt=mView.getPosition();
+            		double scale=mView.getScale();
+            		switch (type)
+            		{
+            		case 0:
+            		case 1:
+            		case 2:
+        				mView.deleteLayer(gLayer);
+        				break;
+            		case 3:
+            		case 4:
+            			mView.deleteLayer(tLayer1);
+            			mView.deleteLayer(tLayer2);
+            			break;
+            		}
+            		mView.setCoordinateFilter(filter);
+            		
     				String dir=Environment.getExternalStorageDirectory().getPath();
     				gLayer=mView.addGoogleMapLayer("http://mt0.google.cn/vt/lyrs=m&hl=zh-CN&gl=cn&scale=2&x={X}&y={Y}&z={Z}", 0, 20, dir+"/cacheGoogleMapM.db");
     				mView.moveLayer(gLayer, 0);
-    				mView.refresh();
+    				mView.moveTo(pt.getX(),pt.getY(),scale);
+    				mView.postDelayed(new Runnable() {
+    					@Override
+    					public void run() {
+    						mView.refresh();
+    					}
+    				}, 0);
     				type=0;
+    				
     			}
             	
             	tv_maptype1.setBackgroundColor(Color.GRAY);
             	tv_maptype2.setBackgroundColor(Color.WHITE);
             	tv_maptype3.setBackgroundColor(Color.WHITE);
+            	tv_maptype4.setBackgroundColor(Color.WHITE);
+            	tv_maptype5.setBackgroundColor(Color.WHITE);
             }
         });
         tv_maptype2 = (TextView) findViewById(R.id.tv_maptype2);
@@ -378,16 +404,41 @@ public class MainActivity extends Activity implements UCFeatureLayerListener,Loc
             public void onClick(View v) {
             	if (type!=1)
     			{
-    				mView.deleteLayer(gLayer);
+            		Point pt=mView.getPosition();
+            		double scale=mView.getScale();
+            		switch (type)
+            		{
+            		case 0:
+            		case 1:
+            		case 2:
+        				mView.deleteLayer(gLayer);
+        				break;
+            		case 3:
+            		case 4:
+            			mView.deleteLayer(tLayer1);
+            			mView.deleteLayer(tLayer2);
+            			break;
+            		}
+            		mView.setCoordinateFilter(filter);
+            		
     				String dir=Environment.getExternalStorageDirectory().getPath();
     				gLayer=mView.addGoogleMapLayer("http://mt0.google.cn/vt/lyrs=p&hl=zh-CN&gl=cn&scale=2&x={X}&y={Y}&z={Z}", 0, 20, dir+"/cacheGoogleMapP.db");
     				mView.moveLayer(gLayer, 0);
-    				mView.refresh();
+    				mView.moveTo(pt.getX(),pt.getY(),scale);
+    				mView.postDelayed(new Runnable() {
+    					@Override
+    					public void run() {
+    						mView.refresh();
+    					}
+    				}, 0);
     				type=1;
+    				
     			}
             	tv_maptype2.setBackgroundColor(Color.GRAY);
             	tv_maptype1.setBackgroundColor(Color.WHITE);
             	tv_maptype3.setBackgroundColor(Color.WHITE);
+            	tv_maptype4.setBackgroundColor(Color.WHITE);
+            	tv_maptype5.setBackgroundColor(Color.WHITE);
             }
         });
         tv_maptype3 = (TextView) findViewById(R.id.tv_maptype3);
@@ -397,16 +448,133 @@ public class MainActivity extends Activity implements UCFeatureLayerListener,Loc
             public void onClick(View v) {
             	if (type!=2)
     			{
-    				mView.deleteLayer(gLayer);
+            		Point pt=mView.getPosition();
+            		double scale=mView.getScale();
+            		switch (type)
+            		{
+            		case 0:
+            		case 1:
+            		case 2:
+        				mView.deleteLayer(gLayer);
+        				break;
+            		case 3:
+            		case 4:
+            			mView.deleteLayer(tLayer1);
+            			mView.deleteLayer(tLayer2);
+            			break;
+            		}
+            		mView.setCoordinateFilter(filter);
+            		
     				String dir=Environment.getExternalStorageDirectory().getPath();
     				gLayer=mView.addGoogleMapLayer("http://mt0.google.cn/vt/lyrs=y&hl=zh-CN&gl=cn&scale=2&x={X}&y={Y}&z={Z}", 0, 20, dir+"/cacheGoogleMapY.db");
     				mView.moveLayer(gLayer, 0);
-    				mView.refresh();
+    				mView.moveTo(pt.getX(),pt.getY(),scale);
+    				mView.postDelayed(new Runnable() {
+    					@Override
+    					public void run() {
+    						mView.refresh();
+    					}
+    				}, 0);
     				type=2;
+    				
     			}
             	tv_maptype3.setBackgroundColor(Color.GRAY);
             	tv_maptype2.setBackgroundColor(Color.WHITE);
             	tv_maptype1.setBackgroundColor(Color.WHITE);
+            	tv_maptype4.setBackgroundColor(Color.WHITE);
+            	tv_maptype5.setBackgroundColor(Color.WHITE);
+            }
+        });
+        tv_maptype4 = (TextView) findViewById(R.id.tv_maptype4);
+        tv_maptype4.setBackgroundColor(Color.GRAY);
+        tv_maptype4.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+            	if (type!=3)
+    			{
+            		Point pt=mView.getPosition();
+            		double scale=mView.getScale();
+            		switch (type)
+            		{
+            		case 0:
+            		case 1:
+            		case 2:
+        				mView.deleteLayer(gLayer);
+        				break;
+            		case 3:
+            		case 4:
+            			mView.deleteLayer(tLayer1);
+            			mView.deleteLayer(tLayer2);
+            			break;
+            		}
+            		mView.setCoordinateFilter(null);
+    				
+    				String dir=Environment.getExternalStorageDirectory().getPath();
+    				tLayer1=mView.addTDMapLayer("http://t0.tianditu.cn/vec_c/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=vec&STYLE=default&TILEMATRIXSET=c&FORMAT=tiles&tk=8def3f7faf6692b23bc854cb90041acb", 1, 18,dir+"/cacheVec.db");
+    				tLayer2=mView.addTDMapLayer("http://t1.tianditu.cn/cva_c/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=c&format=tiles&tk=8def3f7faf6692b23bc854cb90041acb", 1, 18,dir+"/cacheCva.db");
+    				mView.moveLayer(tLayer2, 0);
+    				mView.moveLayer(tLayer1, 0);
+    				
+    				mView.moveTo(pt.getX(),pt.getY(),scale);
+    				mView.postDelayed(new Runnable() {
+    					@Override
+    					public void run() {
+    						mView.refresh();
+    					}
+    				}, 0);
+    				type=3;
+    			}
+            	tv_maptype1.setBackgroundColor(Color.WHITE);
+            	tv_maptype2.setBackgroundColor(Color.WHITE);
+            	tv_maptype3.setBackgroundColor(Color.WHITE);
+            	tv_maptype4.setBackgroundColor(Color.GRAY);
+            	tv_maptype5.setBackgroundColor(Color.WHITE);
+            }
+        });
+        tv_maptype5 = (TextView) findViewById(R.id.tv_maptype5);
+        tv_maptype5.setBackgroundColor(Color.GRAY);
+        tv_maptype5.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+            	if (type!=4)
+    			{
+            		Point pt=mView.getPosition();
+            		double scale=mView.getScale();
+            		switch (type)
+            		{
+            		case 0:
+            		case 1:
+            		case 2:
+            			mView.deleteLayer(gLayer);
+        				break;
+            		case 3:
+            		case 4:
+            			mView.deleteLayer(tLayer1);
+            			mView.deleteLayer(tLayer2);
+            			break;
+            		}
+            		mView.setCoordinateFilter(null);
+            		
+    				String dir=Environment.getExternalStorageDirectory().getPath();
+    				tLayer1=mView.addTDMapLayer("http://t0.tianditu.cn/img_c/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=img&STYLE=default&TILEMATRIXSET=c&FORMAT=tiles&tk=8def3f7faf6692b23bc854cb90041acb", 1, 18,dir+"/cacheImg.db");
+    				tLayer2=mView.addTDMapLayer("http://t1.tianditu.cn/cia_c/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=c&format=tiles&tk=8def3f7faf6692b23bc854cb90041acb", 1, 18,dir+"/cacheCia.db");
+    				mView.moveLayer(tLayer2, 0);
+    				mView.moveLayer(tLayer1, 0);
+    				
+    				mView.moveTo(pt.getX(),pt.getY(),scale);
+    				mView.postDelayed(new Runnable() {
+    					@Override
+    					public void run() {
+    						mView.refresh();
+    					}
+    				}, 0);
+    				type=4;
+    			}
+            	tv_maptype1.setBackgroundColor(Color.WHITE);
+            	tv_maptype2.setBackgroundColor(Color.WHITE);
+            	tv_maptype3.setBackgroundColor(Color.WHITE);
+            	tv_maptype4.setBackgroundColor(Color.WHITE);
+            	tv_maptype5.setBackgroundColor(Color.GRAY);
             }
         });
         
@@ -476,6 +644,11 @@ public class MainActivity extends Activity implements UCFeatureLayerListener,Loc
 //		mView.setLayerVisible(1, false);
 //		mView.setLayerVisible(2, false);
 		type=2;
+		tv_maptype1.setBackgroundColor(Color.WHITE);
+    	tv_maptype2.setBackgroundColor(Color.WHITE);
+    	tv_maptype3.setBackgroundColor(Color.GRAY);
+    	tv_maptype4.setBackgroundColor(Color.WHITE);
+    	tv_maptype5.setBackgroundColor(Color.WHITE);
 //		mView.addTDMapLayer("http://t0.tianditu.cn/img_c/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=img&STYLE=default&TILEMATRIXSET=c&FORMAT=tiles", 1, 18,dir+"/cacheImg.db");
 //		mView.addTDMapLayer("http://t1.tianditu.cn/cia_c/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=c&format=tiles", 1, 18,dir+"/cacheCia.db");
 		
@@ -1376,11 +1549,12 @@ public class MainActivity extends Activity implements UCFeatureLayerListener,Loc
 				//for (Layer layer:layers)
 				{
 					v.add(layers.get(i1).layer);
+					layers.get(i1).flag=true;
 				}
 			}
-			if (pointLayer.layer!=null) v.add(pointLayer.layer);
-			if (lineLayer.layer!=null) v.add(lineLayer.layer);
-			if (polygonLayer.layer!=null) v.add(polygonLayer.layer);
+			if (pointLayer.layer!=null) {v.add(pointLayer.layer);pointLayer.flag=true;}
+			if (lineLayer.layer!=null) {v.add(lineLayer.layer);lineLayer.flag=true;}
+			if (polygonLayer.layer!=null) {v.add(polygonLayer.layer);polygonLayer.flag=true;}
 			EditFeatureAttTool tool=new EditFeatureAttTool(mView,new Handler() {
 				public void handleMessage(Message msg) 
 				{
@@ -1456,11 +1630,12 @@ public class MainActivity extends Activity implements UCFeatureLayerListener,Loc
 				//for (Layer layer:layers)
 				{
 					v.add(layers.get(i1).layer);
+					layers.get(i1).flag=true;
 				}
 			}
-			if (pointLayer.layer!=null) v.add(pointLayer.layer);
-			if (lineLayer.layer!=null) v.add(lineLayer.layer);
-			if (polygonLayer.layer!=null) v.add(polygonLayer.layer);
+			if (pointLayer.layer!=null) {v.add(pointLayer.layer);pointLayer.flag=true;}
+			if (lineLayer.layer!=null) {v.add(lineLayer.layer);lineLayer.flag=true;}
+			if (polygonLayer.layer!=null) {v.add(polygonLayer.layer);polygonLayer.flag=true;}
 			EditFeatureTool tool=new EditFeatureTool(mView,v);
 			curTool=tool;
 		} else if ("撤销".equals(menu)) {
@@ -1485,6 +1660,7 @@ public class MainActivity extends Activity implements UCFeatureLayerListener,Loc
 						}
 						CutTool tool=new CutTool(mView,layer.layer);
 						curTool=tool;
+						layer.flag=true;
 					}
 					
 				});
@@ -1499,6 +1675,7 @@ public class MainActivity extends Activity implements UCFeatureLayerListener,Loc
 				}
 				CutTool tool=new CutTool(mView,polygonLayer.layer);
 				curTool=tool;
+				polygonLayer.flag=true;
 			}
 		} else if ("开启捕捉".equals(menu)) {
 			
@@ -1976,7 +2153,19 @@ public class MainActivity extends Activity implements UCFeatureLayerListener,Loc
 						layer.pathname=mbs.elementAt(i);
 						layer.rlayer=mView.addMbtiesLayer(layer.pathname, 0, 20);
 						mbLayers.add(layer);
-						mView.moveLayer(layer.rlayer, 1);//移动到第二层位置上
+						switch (type)
+						{
+						case 0:
+						case 1:
+						case 2:
+							mView.moveLayer(layer.rlayer, 1);//移动到第二层位置上
+							break;
+						case 3:
+						case 4:
+							mView.moveLayer(layer.rlayer, 2);//移动到第三层位置上
+							break;
+						}
+						
 					}
 				}
 				TextView tv_qt = (TextView) findViewById(R.id.tv_main_qt);
@@ -2072,7 +2261,18 @@ public class MainActivity extends Activity implements UCFeatureLayerListener,Loc
 						else
 							layer.layer.setStyle(30, 2, "#FFFF0000", "#00000000");
 						layers.add(layer);
-						mView.moveLayer(layer.layer, 1);//移动到第二层位置上
+						switch (type)
+						{
+						case 0:
+						case 1:
+						case 2:
+							mView.moveLayer(layer.layer, 1);//移动到第二层位置上
+							break;
+						case 3:
+						case 4:
+							mView.moveLayer(layer.layer, 2);//移动到第三层位置上
+							break;
+						}
 					}
 				}
 				TextView tv_qt = (TextView) findViewById(R.id.tv_main_qt);

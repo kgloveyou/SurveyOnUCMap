@@ -157,7 +157,7 @@
         </RelativeLayout>
         
         <com.anlia.expandmenu.widget.HorizontalExpandMenu
-            android:layout_width="200dp"
+            android:layout_width="300dp"
             android:layout_height="40dp"
             android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"
@@ -175,19 +175,31 @@
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:gravity="center"
-                    android:text="线路"/>
+                    android:text="Google线路"/>
                 <TextView android:id="@+id/tv_maptype2"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:gravity="center"
-                    android:text="地形"/>
+                    android:text="Google地形"/>
                 <TextView android:id="@+id/tv_maptype3"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:gravity="center"
-                    android:text="卫星"/>
+                    android:text="Google卫星"/>
+                <TextView android:id="@+id/tv_maptype4"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="天地图线路"/>
+                <TextView android:id="@+id/tv_maptype5"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="天地图卫星"/>
             </LinearLayout>
         </com.anlia.expandmenu.widget.HorizontalExpandMenu>
     </RelativeLayout>
